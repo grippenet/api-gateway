@@ -75,5 +75,6 @@ func (h *HttpEndpoints) AddUserManagementAdminAPI(rg *gin.RouterGroup) {
 		user.GET("/", h.findNonParticipantUsersHandl)
 		user.POST("/add-role", mw.RequirePayload(), h.userAddRoleHandl)
 		user.POST("/remove-role", mw.RequirePayload(), h.userRemoveRoleHandl)
+		user.POST("/resend-invitation", mw.RequirePayload(), h.InvitationResendHandl)
 	}
 }
