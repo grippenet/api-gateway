@@ -64,7 +64,9 @@ func (h *HttpEndpoints) InvitationResendHandl(c *gin.Context) {
 		UseReminderWeekdayFilter: false,
 	}
 
-	r := InvitationResendResponse{}
+	r := InvitationResendResponse{
+		Results: make(map[string]InvitationResendResult)
+	}
 
 	ctx := context.Background()
 

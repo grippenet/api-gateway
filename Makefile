@@ -3,7 +3,7 @@
 DOCKER_OPTS ?= --rm
 VERSION := $(shell git describe --tags --abbrev=0)
 TARGET_DIR ?= ./
-
+DOCKER_TAG ?= $(VERSION)
 help:
 	@echo "Service building targets"
 	@echo "	 build : build service command"
@@ -27,9 +27,9 @@ test:
 	go test $(TEST_ARGS)
 
 docker-participant-api:
-	docker build -t  github.com/influenzanet/participant-api:$(VERSION)  -f build/docker/participant-api/Dockerfile $(DOCKER_OPTS) .
+	docker build -t  github.com/influenzanet/participant-api:$(DOCKER_TAG)  -f build/docker/participant-api/Dockerfile $(DOCKER_OPTS) .
 
 docker-management-api:
-	docker build -t  github.com/influenzanet/management-api:$(VERSION)  -f build/docker/management-api/Dockerfile $(DOCKER_OPTS) .
+	docker build -t  github.com/influenzanet/management-api:$(DOCKER_TAG)  -f build/docker/management-api/Dockerfile $(DOCKER_OPTS) .
 
 docker: docker-participant-api docker-management-api
