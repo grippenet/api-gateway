@@ -65,7 +65,7 @@ func (h *HttpEndpoints) InvitationResendHandl(c *gin.Context) {
 	}
 
 	r := InvitationResendResponse{
-		Results: make(map[string]InvitationResendResult)
+		Results: make(map[string]InvitationResendResult),
 	}
 
 	ctx := context.Background()
