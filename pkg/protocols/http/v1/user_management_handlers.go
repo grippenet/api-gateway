@@ -252,15 +252,21 @@ func (h *HttpEndpoints) deleteAccountHandl(c *gin.Context) {
 	}
 	req.Token = token
 
-	// Start with deleting confidential data:
-	if _, err := h.clients.StudyService.RemoveConfidentialResponsesForProfiles(context.Background(), &studyAPI.RemoveConfidentialResponsesForProfilesReq{
-		Token: token,
-	}); err != nil {
-		logger.Error.Println(err)
-	} else {
-		logger.Debug.Println("confidential data is deleted before deleting account")
+	// for all profiles, notify the study service that the account is deleted:
+	userProfileIDs := []string{token.ProfilId}
+	userProfileIDs = append(userProfileIDs, token.OtherProfileIds...)
+
+	for _, profileId := range userProfileIDs {
+		token.ProfilId = profileId
+		// Notify study service that profile is deleted:
+		if _, err := h.clients.StudyService.ProfileDeleted(context.Background(),
+			token,
+		); err != nil {
+			logger.Error.Println(err)
+		}
 	}
 
+	// delete account:
 	resp, err := h.clients.UserManagement.DeleteAccount(context.Background(), &req)
 	if err != nil {
 		st := status.Convert(err)
@@ -305,11 +311,11 @@ func (h *HttpEndpoints) removeProfileHandl(c *gin.Context) {
 		return
 	}
 
-	// Remove confidential data when deleting a profile
-	if _, err := h.clients.StudyService.RemoveConfidentialResponsesForProfiles(context.Background(), &studyAPI.RemoveConfidentialResponsesForProfilesReq{
-		Token:       token,
-		ForProfiles: []string{req.Profile.Id},
-	}); err != nil {
+	token.ProfilId = req.Profile.Id
+	// Notify study service that profile is deleted:
+	if _, err := h.clients.StudyService.ProfileDeleted(context.Background(),
+		token,
+	); err != nil {
 		logger.Error.Println(err)
 	}
 	logger.Debug.Println("profile and its confidential data is deleted.")
@@ -456,6 +462,9 @@ func (h *HttpEndpoints) migrateUserHandl(c *gin.Context) {
 				return
 			}
 
+			// To improve privace, reduce resoltuion of the timestamp
+			noon := time.Now().Truncate(24 * time.Hour).Add(12 * time.Hour).Unix()
+
 			// submit migration survey
 			_, err = h.clients.StudyService.SubmitResponse(context.TODO(), &studyAPI.SubmitResponseReq{
 				Token:     newUserToken,
@@ -463,7 +472,7 @@ func (h *HttpEndpoints) migrateUserHandl(c *gin.Context) {
 				ProfileId: profile.Id,
 				Response: &studyAPI.SurveyResponse{
 					Key:         "migration",
-					SubmittedAt: time.Now().Unix(),
+					SubmittedAt: noon,
 					Responses: []*studyAPI.SurveyItemResponse{
 						{Key: "migration.OldID", Response: &studyAPI.ResponseItem{Key: "rg", Items: []*studyAPI.ResponseItem{
 							{Key: "ic", Value: req.OldParticipantIDs[pIndex]},

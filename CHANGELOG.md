@@ -1,11 +1,25 @@
 # Changelog
 
+## [v1.3.0] - 2023-03-20
+
+### Changed
+
+- Update dependency for study-service
+- Send info about profile and account deletion to the study-service, so this can be handled in the study rules.
+- During user migration, set timestamps to the middle of the day to improve privacy.
+
+## [v1.2.1] - 2023-02-27
+
+### Changed
+
+- Updated project dependencies, especially relevant the messaging service to the latest version (to include the "until" flag).
+
 ## [v1.2.0] - 2022-11-02
 
 ### BREAKING CHANGE
 
 - Changes in the survey management API to apply the survey history model changes.
-  - This version requires the study-service with minumum of 1.3.0 version
+  - This version requires the study-service with minimum of 1.3.0 version
 
 ### Changed
 
